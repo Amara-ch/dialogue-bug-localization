@@ -1,0 +1,145 @@
+{
+  "aggregate": {
+    "top1": 0.36363636363636365,
+    "top3": 0.5454545454545454,
+    "top5": 0.6363636363636364,
+    "top10": 0.9545454545454546,
+    "mrr": 0.5224403122130394
+  },
+  "per_sample": [
+    {
+      "id": "ansible__ansible__4",
+      "repo": "ansible/ansible",
+      "gt_rank": 1,
+      "num_candidates": 2
+    },
+    {
+      "id": "psf__black__3",
+      "repo": "psf/black",
+      "gt_rank": 1,
+      "num_candidates": 4
+    },
+    {
+      "id": "psf__black__19",
+      "repo": "psf/black",
+      "gt_rank": 1,
+      "num_candidates": 4
+    },
+    {
+      "id": "httpie__httpie__1",
+      "repo": "httpie/httpie",
+      "gt_rank": 3,
+      "num_candidates": 3
+    },
+    {
+      "id": "spotify__luigi__9",
+      "repo": "spotify/luigi",
+      "gt_rank": 1,
+      "num_candidates": 11
+    },
+    {
+      "id": "spotify__luigi__33",
+      "repo": "spotify/luigi",
+      "gt_rank": 6,
+      "num_candidates": 11
+    },
+    {
+      "id": "matplotlib__matplotlib__5",
+      "repo": "matplotlib/matplotlib",
+      "gt_rank": 2,
+      "num_candidates": 8
+    },
+    {
+      "id": "matplotlib__matplotlib__7",
+      "repo": "matplotlib/matplotlib",
+      "gt_rank": 6,
+      "num_candidates": 8
+    },
+    {
+      "id": "pandas-dev__pandas__120",
+      "repo": "pandas-dev/pandas",
+      "gt_rank": 11,
+      "num_candidates": 15
+    },
+    {
+      "id": "pandas-dev__pandas__121",
+      "repo": "pandas-dev/pandas",
+      "gt_rank": 6,
+      "num_candidates": 15
+    },
+    {
+      "id": "cool-RR__PySnooper__1",
+      "repo": "cool-RR/PySnooper",
+      "gt_rank": 2,
+      "num_candidates": 3
+    },
+    {
+      "id": "sanic-org__sanic__1",
+      "repo": "sanic-org/sanic",
+      "gt_rank": 1,
+      "num_candidates": 3
+    },
+    {
+      "id": "scrapy__scrapy__18",
+      "repo": "scrapy/scrapy",
+      "gt_rank": 6,
+      "num_candidates": 6
+    },
+    {
+      "id": "scrapy__scrapy__20",
+      "repo": "scrapy/scrapy",
+      "gt_rank": 4,
+      "num_candidates": 6
+    },
+    {
+      "id": "nvbn__thefuck__1",
+      "repo": "nvbn/thefuck",
+      "gt_rank": 4,
+      "num_candidates": 10
+    },
+    {
+      "id": "nvbn__thefuck__2",
+      "repo": "nvbn/thefuck",
+      "gt_rank": 9,
+      "num_candidates": 10
+    },
+    {
+      "id": "tornadoweb__tornado__4",
+      "repo": "tornadoweb/tornado",
+      "gt_rank": 6,
+      "num_candidates": 8
+    },
+    {
+      "id": "tornadoweb__tornado__10",
+      "repo": "tornadoweb/tornado",
+      "gt_rank": 2,
+      "num_candidates": 8
+    },
+    {
+      "id": "tqdm__tqdm__7",
+      "repo": "tqdm/tqdm",
+      "gt_rank": 1,
+      "num_candidates": 2
+    },
+    {
+      "id": "ytdl-org__youtube-dl__15",
+      "repo": "ytdl-org/youtube-dl",
+      "gt_rank": 1,
+      "num_candidates": 8
+    },
+    {
+      "id": "ytdl-org__youtube-dl__17",
+      "repo": "ytdl-org/youtube-dl",
+      "gt_rank": 1,
+      "num_candidates": 8
+    },
+    {
+      "id": "ytdl-org__youtube-dl__36",
+      "repo": "ytdl-org/youtube-dl",
+      "gt_rank": 8,
+      "num_candidates": 8
+    }
+  ],
+  "n_test": 22,
+  "epoch": 1
+}

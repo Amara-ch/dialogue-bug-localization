@@ -1,0 +1,38 @@
+# ===== Data collection (legacy, kept for reference) =====
+target_repo: "pallets/flask"
+max_issues: 100
+labels_filter: []
+
+# ===== Paths =====
+paths:
+  raw_issues:   "data/raw/issues.json"
+  processed:    "data/processed/dataset.json"
+  code_graph:   "data/graphs/code_graph.pkl"
+  source_code:  "data/source/flask"
+  checkpoints:  "checkpoints/"
+
+# ===== Model =====
+model:
+  bert_name: "microsoft/codebert-base"
+  max_dialogue_tokens: 512
+  node_feat_dim: 128
+  gnn_hidden_dim: 256
+  gnn_layers: 3
+  fusion_heads: 4
+  dropout: 0.2
+  freeze_bert_layers: 10   # freeze 10 of 12 layers for CPU speed
+
+# ===== Training =====
+training:
+  batch_size: 2          # CPU-friendly
+  epochs: 12
+  lr: 2.0e-5
+  weight_decay: 0.01
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+  seed: 42
+
+# ===== Evaluation =====
+evaluation:
+  top_k: [1, 3, 5, 10]
