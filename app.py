@@ -39,25 +39,44 @@ def load_assets():
     with open(DATASET_PATH, "r", encoding="utf-8") as f:
         dataset = json.load(f)
 
-    # Graph file may be NetworkX, dict, or list. Try multiple shapes.
-    nodes = []
+    repo_files = {}
+
     try:
         with open(GRAPH_PATH, "rb") as f:
             graph = pickle.load(f)
-        if hasattr(graph, "nodes"):  # NetworkX graph
-            nodes = list(graph.nodes)
-        elif isinstance(graph, dict):
-            if "nodes" in graph:
-                nodes = list(graph["nodes"])
-            else:
-                nodes = list(graph.keys())
-        elif isinstance(graph, (list, tuple, set)):
-            nodes = list(graph)
+
+        # Case 1: this project's format -> dict with node_to_id + repo_of_node
+        if isinstance(graph, dict) and "node_to_id" in graph and "repo_of_node" in graph:
+            for node in graph["node_to_id"].keys():
+                repo = graph["repo_of_node"].get(node, "unknown/repo")
+                path = node.split("::", 1)[1] if "::" in node else node
+                repo_files.setdefault(repo, set()).add(path)
+
+        # Case 2: NetworkX graph
+        elif hasattr(graph, "nodes"):
+            for node in graph.nodes:
+                node = str(node)
+                if "::" in node:
+                    repo, path = node.split("::", 1)
+                else:
+                    parts = node.split("/", 2)
+                    repo = "/".join(parts[:2]) if len(parts) >= 2 else "unknown/repo"
+                    path = parts[2] if len(parts) > 2 else node
+                repo_files.setdefault(repo, set()).add(path)
+
+        # Case 3: dict with "nodes" key
+        elif isinstance(graph, dict) and "nodes" in graph:
+            for node in graph["nodes"]:
+                node = str(node)
+                if "::" in node:
+                    repo, path = node.split("::", 1)
+                    repo_files.setdefault(repo, set()).add(path)
+
     except Exception as e:
         st.warning(f"Graph load fallback: {e}")
 
-    # Fallback: derive files from dataset itself
-    if not nodes:
+    # Fallback: derive from dataset
+    if not repo_files:
         items = dataset if isinstance(dataset, list) else (
             sum((v for v in dataset.values() if isinstance(v, list)), [])
         )
@@ -66,22 +85,7 @@ def load_assets():
                 continue
             repo = item.get("repo") or item.get("repository") or "unknown/repo"
             for f in (item.get("fix_files") or item.get("files") or []):
-                nodes.append(f"{repo}::{f}")
-
-    # Build per-repo file map
-    repo_files = {}
-    for node in nodes:
-        node = str(node)
-        if "::" in node:
-            repo, path = node.split("::", 1)
-        else:
-            parts = node.split("/", 2)
-            if len(parts) >= 3:
-                repo = "/".join(parts[:2])
-                path = parts[2]
-            else:
-                repo, path = "unknown/repo", node
-        repo_files.setdefault(repo, set()).add(path)
+                repo_files.setdefault(repo, set()).add(f)
 
     repo_files = {r: sorted(fs) for r, fs in repo_files.items()}
     return dataset, repo_files
