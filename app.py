@@ -27,7 +27,7 @@ HISTORY = ROOT / "checkpoints" / "history_v2.json"
 # Page config
 # ============================================================
 st.set_page_config(
-    page_title="Amara Tariq — Bug Localization Research",
+    page_title="Amara Tariq, Khansa Azeem, Zeenat Fatima & Ayesha Akbar — Bug Localization Research",
     page_icon="🧬",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -529,7 +529,7 @@ with nav_l:
                         color:white;font-weight:800;font-family:'Plus Jakarta Sans';
                         box-shadow:0 4px 14px rgba(99,102,241,0.35);">A</div>
             <div style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:1.05rem;">
-                Amara Tariq <span style="color:#71717a;font-weight:500;">· Bug Localization Research</span>
+                Amara Tariq, Khansa Azeem, Zeenat Fatima &amp; Ayesha Akbar <span style="color:#71717a;font-weight:500;">· Bug Localization Research</span>
             </div>
         </div>
         """,
@@ -1357,7 +1357,7 @@ with tabs[5]:
             """
             <div class="profile-hero float">
                 <div class="profile-avatar">AT</div>
-                <div class="profile-name">Amara Tariq</div>
+                <div class="profile-name">Amara Tariq, Khansa Azeem, Zeenat Fatima &amp; Ayesha Akbar</div>
                 <div class="profile-role">AI / ML Researcher</div>
                 <div class="profile-loc">📍 Lahore, Pakistan 🇵🇰</div>
             </div>
@@ -1408,7 +1408,7 @@ with tabs[5]:
             f"""
             <div class="card">
                 <div style="font-family:'Plus Jakarta Sans';font-weight:700;font-size:1.2rem;margin-bottom:0.85rem;">
-                    👋 Hello, I'm Amara.
+                    👋 Hello, we are Amara, Khansa, Zeenat &amp; Ayesha.
                 </div>
                 <div style="color:{T['text2']};line-height:1.8;font-size:1rem;">
                     I'm a Computer Science student and AI researcher passionate about applying deep learning
@@ -1595,7 +1595,7 @@ st.markdown(
     """
     <div class="footer">
         Built with ❤️ in Lahore · Streamlit · CodeBERT · PyTorch Geometric · rank_bm25<br/>
-        © 2026 <a href="https://github.com/Amara-ch" target="_blank">Amara Tariq</a>
+        © 2026 <a href="https://github.com/Amara-ch" target="_blank">Amara Tariq, Khansa Azeem, Zeenat Fatima &amp; Ayesha Akbar</a>
         · Open source on <a href="https://github.com/Amara-ch/dialogue-bug-localization" target="_blank">GitHub</a>
     </div>
     """,
