@@ -38,20 +38,51 @@ st.caption("Hybrid CodeBERT + Graph Neural Network + BM25 — final-year researc
 def load_assets():
     with open(DATASET_PATH, "r", encoding="utf-8") as f:
         dataset = json.load(f)
-    with open(GRAPH_PATH, "rb") as f:
-        graph = pickle.load(f)
 
-    # Build per-repo file list from graph nodes
+    # Graph file may be NetworkX, dict, or list. Try multiple shapes.
+    nodes = []
+    try:
+        with open(GRAPH_PATH, "rb") as f:
+            graph = pickle.load(f)
+        if hasattr(graph, "nodes"):  # NetworkX graph
+            nodes = list(graph.nodes)
+        elif isinstance(graph, dict):
+            if "nodes" in graph:
+                nodes = list(graph["nodes"])
+            else:
+                nodes = list(graph.keys())
+        elif isinstance(graph, (list, tuple, set)):
+            nodes = list(graph)
+    except Exception as e:
+        st.warning(f"Graph load fallback: {e}")
+
+    # Fallback: derive files from dataset itself
+    if not nodes:
+        items = dataset if isinstance(dataset, list) else (
+            sum((v for v in dataset.values() if isinstance(v, list)), [])
+        )
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            repo = item.get("repo") or item.get("repository") or "unknown/repo"
+            for f in (item.get("fix_files") or item.get("files") or []):
+                nodes.append(f"{repo}::{f}")
+
+    # Build per-repo file map
     repo_files = {}
-    for node in graph.nodes:
-        # node format: "owner/repo::path/to/file.py"
+    for node in nodes:
+        node = str(node)
         if "::" in node:
             repo, path = node.split("::", 1)
         else:
             parts = node.split("/", 2)
-            repo = "/".join(parts[:2]) if len(parts) >= 2 else node
-            path = parts[2] if len(parts) > 2 else node
+            if len(parts) >= 3:
+                repo = "/".join(parts[:2])
+                path = parts[2]
+            else:
+                repo, path = "unknown/repo", node
         repo_files.setdefault(repo, set()).add(path)
+
     repo_files = {r: sorted(fs) for r, fs in repo_files.items()}
     return dataset, repo_files
 
@@ -60,8 +91,11 @@ def load_assets():
 def load_results():
     def _read(p):
         if p.exists():
-            with open(p, "r", encoding="utf-8") as f:
-                return json.load(f)
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                return None
         return None
     return {
         "test": _read(TEST_RESULTS),
@@ -77,11 +111,12 @@ def tokenize(text):
 
 def bm25_predict(dialogue, files, top_k=5):
     """BM25 on file path tokens — same baseline used in our paper."""
+    if not files:
+        return []
     corpus = [tokenize(f.replace("/", " ").replace("_", " ").replace(".", " ")) for f in files]
     bm25 = BM25Okapi(corpus)
     q_tokens = tokenize(dialogue)
     scores = bm25.get_scores(q_tokens)
-    # Normalize 0..1
     if scores.max() > 0:
         scores = scores / scores.max()
     ranked = sorted(zip(files, scores), key=lambda x: -x[1])[:top_k]
@@ -91,6 +126,10 @@ def bm25_predict(dialogue, files, top_k=5):
 # ---------- Load ----------
 dataset, repo_files = load_assets()
 results = load_results()
+
+if not repo_files:
+    st.error("No repositories found in dataset/graph. Please check data files.")
+    st.stop()
 
 # ---------- Sidebar ----------
 with st.sidebar:
@@ -178,19 +217,22 @@ else:
     rows = []
     if results["baselines"]:
         for name, m in results["baselines"].items():
-            rows.append({"Method": name, **{k: m.get(k) for k in ("top1", "top3", "top5", "top10", "mrr")}})
+            if isinstance(m, dict):
+                rows.append({"Method": name, **{k: m.get(k) for k in ("top1", "top3", "top5", "top10", "mrr")}})
     if results["test"]:
         m = results["test"]
-        rows.append({"Method": "Ours (CodeBERT+GCN)", **{k: m.get(k) for k in ("top1", "top3", "top5", "top10", "mrr")}})
+        if isinstance(m, dict):
+            rows.append({"Method": "Ours (CodeBERT+GCN)", **{k: m.get(k) for k in ("top1", "top3", "top5", "top10", "mrr")}})
     if results["ensemble"]:
-        # ensemble may have multiple alphas - pick best
         ens = results["ensemble"]
+        m = None
         if isinstance(ens, dict) and "best" in ens:
             m = ens["best"]
-            rows.append({"Method": f"🏆 Hybrid (α={m.get('alpha', 0.4)})",
-                         **{k: m.get(k) for k in ("top1", "top3", "top5", "top10", "mrr")}})
         elif isinstance(ens, list) and ens:
-            m = max(ens, key=lambda x: x.get("mrr", 0))
+            m = max(ens, key=lambda x: x.get("mrr", 0) if isinstance(x, dict) else 0)
+        elif isinstance(ens, dict):
+            m = ens
+        if isinstance(m, dict):
             rows.append({"Method": f"🏆 Hybrid (α={m.get('alpha', 0.4)})",
                          **{k: m.get(k) for k in ("top1", "top3", "top5", "top10", "mrr")}})
 
@@ -213,15 +255,25 @@ else:
     if results["history"]:
         st.subheader("📈 Training history")
         h = results["history"]
-        if isinstance(h, dict):
-            df_h = pd.DataFrame(h)
-            st.line_chart(df_h)
+        try:
+            if isinstance(h, dict):
+                df_h = pd.DataFrame({k: v for k, v in h.items() if isinstance(v, list)})
+                if not df_h.empty:
+                    st.line_chart(df_h)
+        except Exception:
+            pass
 
     # Dataset stats
     st.subheader("📦 Dataset")
-    n_total = sum(len(v) if isinstance(v, list) else 1 for v in dataset.values()) if isinstance(dataset, dict) else len(dataset)
-    st.metric("Total bugs", n_total)
-    st.metric("Repositories", len(repo_files))
+    if isinstance(dataset, dict):
+        n_total = sum(len(v) if isinstance(v, list) else 1 for v in dataset.values())
+    elif isinstance(dataset, list):
+        n_total = len(dataset)
+    else:
+        n_total = 0
+    col1, col2 = st.columns(2)
+    col1.metric("Total bugs", n_total)
+    col2.metric("Repositories", len(repo_files))
 
 st.markdown("---")
 st.caption(
