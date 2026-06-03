@@ -3,3 +3,4 @@ pandas
 numpy
 networkx
 rank-bm25
+matplotlib
